@@ -41,7 +41,7 @@ public class Parser {
                     field[lines.size() - i - 1][j] = curCell;
                 }
             }
-            if (robot != null) return new Field(field, robot, lift, countOfLambda, false);
+            if (robot != null) return new Field(field, robot, lift, countOfLambda);
         } catch (IOException e) {
             e.printStackTrace();
         }

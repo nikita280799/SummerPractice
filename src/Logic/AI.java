@@ -19,36 +19,31 @@ public class AI {
         this.field = field;
     }
 
-    public Cell staticHeuristicValue(Cell startCell) {
-        Cell goalCell = foundNearestGoal(startCell);
-        java.util.Map<Cell, Integer> values = new HashMap<Cell, Integer>();
-        java.util.Map<Cell, Cell> neighbors = new HashMap<>();
+    public int staticAStar(Cell startCell, Cell goalCell) {
+        Map<Cell, Integer> values = new HashMap<Cell, Integer>();
         Set<Cell> visitedCells = new HashSet<>();
-        values.put(startCell, heuristic(startCell, goalCell));
+        values.put(startCell, statHeur(startCell, goalCell));
         Cell curCell = null;
         int countOfSteps = 0;
         while (!values.isEmpty()) {
-            curCell = findBestValue(values, goalCell);
+            curCell = findBestValue(values);
             if (curCell == goalCell) break;
             for (Cell newCell : field.getPossibleSteps(curCell)) {
-                if (neighbors.get(curCell) == null) neighbors.put(newCell, newCell);
-                else neighbors.put(newCell, neighbors.get(curCell));
                 if (values.get(newCell) == null && !visitedCells.contains(curCell)) {
-                    countOfSteps = values.get(curCell) - heuristic(curCell, goalCell) + 1;
-                    values.put(newCell, heuristic(newCell, goalCell) + countOfSteps);
+                    countOfSteps = values.get(curCell) - statHeur(curCell, goalCell) + 1;
+                    values.put(newCell, statHeur(newCell, goalCell) + countOfSteps);
                 }
             }
             visitedCells.add(curCell);
             values.remove(curCell);
         }
-        return neighbors.get(goalCell);
+        return values.get(curCell);
     }
 
-
-
-    public Cell getBestStep() {
-        return staticHeuristicValue(field.robot);
+    private int statHeur(Cell from, Cell to) {
+        return abs(from.x - to.x) + abs(from.y - to.y);
     }
+
 
     /**
      * public List<Cell> dynamicAI(Cell startCell) {
@@ -70,36 +65,16 @@ public class AI {
      * }
      */
 
-    private Cell findBestValue(Map<Cell, Integer> possibleCells, Cell goalCell) {
+    private Cell findBestValue(Map<Cell, Integer> possibleCells) {
         int min = Integer.MAX_VALUE;
         Cell bestCell = null;
-        for (Map.Entry pair : possibleCells.entrySet()) {
-            if ((int) pair.getValue() < min) {
-                min = (int) pair.getValue();
-                bestCell = (Cell) pair.getKey();
+        for (Map.Entry entry : possibleCells.entrySet()) {
+            if ((int) entry.getValue() < min) {
+                min = (int) entry.getValue();
+                bestCell = (Cell) entry.getKey();
             }
         }
         return bestCell;
-    }
-
-    public Cell foundNearestGoal(Cell curCell) {
-        if (field.isLiftOpen) return field.lift;
-        Set<Cell> visitedCells = new HashSet<>();
-        Set<Cell> candidates = new HashSet<>();
-        visitedCells.add(curCell);
-        candidates.add(curCell);
-        while (!candidates.isEmpty()) {
-            Set<Cell> newCandidates = new HashSet<>();
-            candidates.forEach(cell -> field.getPossibleSteps(cell).forEach(newCell -> {
-                if (!visitedCells.contains(newCell)) newCandidates.add(newCell);
-            }));
-            for (Cell cell : newCandidates) {
-                if (cell.isLambda()) return cell;
-            }
-            visitedCells.addAll(newCandidates);
-            candidates = new HashSet<>(newCandidates);
-        }
-        return null;
     }
 
     public List<Cell> getListOfGoal(Cell curCell) {
@@ -130,28 +105,6 @@ public class AI {
                 .forEach(a -> list.add(a.getKey()));
         list.add(field.lift);
         return list;
-    }
-
-    private int heuristic(Cell from, Cell to) {
-        Set<Cell> visitedCells = new HashSet<>();
-        Set<Cell> candidates = new HashSet<>();
-        visitedCells.add(from);
-        candidates.add(from);
-        int countOfSteps = 0;
-        if (from == to) return countOfSteps;
-        while (!candidates.isEmpty()) {
-            countOfSteps++;
-            Set<Cell> newCandidates = new HashSet<>();
-            candidates.forEach(cell -> field.getPossibleSteps(cell).forEach(newCell -> {
-                if (!visitedCells.contains(newCell)) newCandidates.add(newCell);
-            }));
-            for (Cell cell : newCandidates) {
-                if (cell == to) return countOfSteps;
-            }
-            visitedCells.addAll(newCandidates);
-            candidates = new HashSet<>(newCandidates);
-        }
-        return countOfSteps;
     }
 
     public Queue<Cell> dynamicAI(List<Cell> goalCellList) {
@@ -195,9 +148,10 @@ public class AI {
                     }
                 }
                 field.robotStep(newCell);
-                field.transitionsSimulation(transitions);
-                Node newState = new Node(transitions, heuristic(field.robot,
+                field.transitionsSimulation(transitions, true);
+                Node newState = new Node(transitions, staticAStar(field.robot,
                         goalCellList.get(curState.numberOfGoalCell)) + curState.level + 1, curState.numberOfGoalCell, newCell);
+                if (field.isRobotDead) newState.heuristic = 1000;
                 curState.addChild(newState);
                 if (newCell == goalCellList.get(curState.numberOfGoalCell)) {
                     if (newCell == goalCellList.get(goalCellList.size() - 1)) return buildRoute(tree, newState);

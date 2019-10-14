@@ -1,10 +1,12 @@
 package Visualization;
 
 import Logic.AI;
+import Logic.Cell;
 import Logic.Field;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Queue;
 
 public class FieldPanel extends JPanel {
 
@@ -25,10 +27,8 @@ public class FieldPanel extends JPanel {
      }
 
      void step(){
-          ai.dynamicAI(ai.foundNearestGoal(field.robot));
-          ai.dynamicAI(ai.foundNearestGoal(field.robot));
-          ai.dynamicAI(ai.foundNearestGoal(field.robot));
-
+          Queue<Cell> route = ai.dynamicAI(ai.getListOfGoal(field.robot));
+          System.out.println(route);
      }
 
      @Override
