@@ -1,11 +1,11 @@
 package Tests;
+
 import Logic.*;
 import org.junit.Test;
 
 import java.util.*;
 
-
-public class FindRouteTest {
+public class FindRouteTests {
     @Test
     public void contest1() {
         Field contest1 = Parser.parse("maps\\contest1.map");
@@ -13,7 +13,8 @@ public class FindRouteTest {
         ai.setField(contest1);
         Deque<Cell> route = ai.findBestRoute();
         System.out.println(route);
-        System.out.println("Points: " + contest1.getPointsForRoute(route));
+        System.out.println("Steps: " + route.size());
+        System.out.println("Points: " + Field.getPointsForRoute(route));
     }
 
     @Test
@@ -23,7 +24,8 @@ public class FindRouteTest {
         ai.setField(contest2);
         Deque<Cell> route = ai.findBestRoute();
         System.out.println(route);
-        System.out.println("Points: " + contest2.getPointsForRoute(route));
+        System.out.println("Steps: " + route.size());
+        System.out.println("Points: " + Field.getPointsForRoute(route));
     }
 
     @Test
@@ -33,7 +35,8 @@ public class FindRouteTest {
         ai.setField(contest3);
         Deque<Cell> route = ai.findBestRoute();
         System.out.println(route);
-        System.out.println("Points: " + contest3.getPointsForRoute(route));
+        System.out.println("Steps: " + route.size());
+        System.out.println("Points: " + Field.getPointsForRoute(route));
     }
 
     @Test
@@ -43,7 +46,8 @@ public class FindRouteTest {
         ai.setField(contest4);
         Deque<Cell> route = ai.findBestRoute();
         System.out.println(route);
-        System.out.println("Points: " + contest4.getPointsForRoute(route));
+        System.out.println("Steps: " + route.size());
+        System.out.println("Points: " + Field.getPointsForRoute(route));
     }
 
     @Test
@@ -53,7 +57,8 @@ public class FindRouteTest {
         ai.setField(contest5);
         Deque<Cell> route = ai.findBestRoute();
         System.out.println(route);
-        System.out.println("Points: " + contest5.getPointsForRoute(route));
+        System.out.println("Steps: " + route.size());
+        System.out.println("Points: " + Field.getPointsForRoute(route));
     }
 
     @Test
@@ -63,7 +68,8 @@ public class FindRouteTest {
         ai.setField(contest6);
         Deque<Cell> route = ai.findBestRoute();
         System.out.println(route);
-        System.out.println("Points: " + contest6.getPointsForRoute(route));
+        System.out.println("Steps: " + route.size());
+        System.out.println("Points: " + Field.getPointsForRoute(route));
     }
 
     @Test
@@ -73,7 +79,8 @@ public class FindRouteTest {
         ai.setField(contest7);
         Deque<Cell> route = ai.findBestRoute();
         System.out.println(route);
-        System.out.println("Points: " + contest7.getPointsForRoute(route));
+        System.out.println("Steps: " + route.size());
+        System.out.println("Points: " + Field.getPointsForRoute(route));
     }
 
     @Test
@@ -83,7 +90,8 @@ public class FindRouteTest {
         ai.setField(contest8);
         Deque<Cell> route = ai.findBestRoute();
         System.out.println(route);
-        System.out.println("Points: " + contest8.getPointsForRoute(route));
+        System.out.println("Steps: " + route.size());
+        System.out.println("Points: " + Field.getPointsForRoute(route));
     }
 
     @Test
@@ -93,7 +101,8 @@ public class FindRouteTest {
         ai.setField(contest9);
         Deque<Cell> route = ai.findBestRoute();
         System.out.println(route);
-        System.out.println("Points: " + contest9.getPointsForRoute(route));
+        System.out.println("Steps: " + route.size());
+        System.out.println("Points: " + Field.getPointsForRoute(route));
     }
 
     @Test
@@ -103,7 +112,8 @@ public class FindRouteTest {
         ai.setField(contest10);
         Deque<Cell> route = ai.findBestRoute();
         System.out.println(route);
-        System.out.println("Points: " + contest10.getPointsForRoute(route));
+        System.out.println("Steps: " + route.size());
+        System.out.println("Points: " + Field.getPointsForRoute(route));
     }
 
 }
