@@ -4,11 +4,11 @@ import java.util.List;
 
 import java.util.*;
 
-public class Node {
+public class State {
 
-    Node parent = null;
+    State parent = null;
 
-    List<Node> childs = new ArrayList<>();
+    Set<State> childs = new HashSet<>();
 
     int heuristic;
 
@@ -20,14 +20,14 @@ public class Node {
 
     Map<Cell, Cell> transitions;
 
-    public Node(Map<Cell, Cell> transitions, int heuristic, int numberOfGoalCell,  Cell robotCell) {
+    public State(Map<Cell, Cell> transitions, int heuristic, int numberOfGoalCell, Cell robotCell) {
         this.transitions = transitions;
         this.heuristic = heuristic;
         this.robotCell = robotCell;
         this.numberOfGoalCell = numberOfGoalCell;
     }
 
-    public void addChild(Node child) {
+    public void addChild(State child) {
         child.parent = this;
         childs.add(child);
         child.level = this.level + 1;
@@ -37,12 +37,11 @@ public class Node {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Node node = (Node) o;
-        return heuristic == node.heuristic &&
-                level == node.level &&
-                Objects.equals(parent, node.parent) &&
-                Objects.equals(childs, node.childs) &&
-                Objects.equals(transitions, node.transitions);
+        State state = (State) o;
+        return heuristic == state.heuristic &&
+                level == state.level &&
+                Objects.equals(robotCell, state.robotCell) &&
+                Objects.equals(transitions, state.transitions);
     }
 
     @Override

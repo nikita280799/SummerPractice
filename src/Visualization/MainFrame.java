@@ -8,9 +8,9 @@ import java.awt.*;
 
 public class MainFrame extends JFrame {
 
-    private  JFileChooser fileChooser = null;
+    private JFileChooser fileChooser;
 
-    private JButton loadMap, findSolution, stepBut;
+    private JButton loadMap, findSolution, showSolution;
 
     private FieldPanel fieldPanel = new FieldPanel();
 
@@ -32,10 +32,10 @@ public class MainFrame extends JFrame {
         fileChooser = new JFileChooser("D:\\Studying\\Прога\\4 семестр\\SummerPractice\\maps");
         loadMap = new JButton("Load Field");
         findSolution = new JButton("Find solution");
-        stepBut = new JButton("Step");
+        showSolution = new JButton("Show solution");
         butPanel.add(loadMap);
         butPanel.add(findSolution);
-        butPanel.add(stepBut);
+        butPanel.add(showSolution);
         butPanel.setVisible(true);
         this.add(new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, scrollPanel, butPanel),
                 BorderLayout.CENTER);
@@ -55,7 +55,8 @@ public class MainFrame extends JFrame {
                 this.fieldPanel.setMap(Parser.parse(fileChooser.getSelectedFile().getAbsolutePath()));
             }
         });
-        stepBut.addActionListener(e -> {fieldPanel.step();});
+        findSolution.addActionListener(e -> {fieldPanel.findSolution();});
+        showSolution.addActionListener(e -> {fieldPanel.showSolution();});
     }
 
     public static void main(String[] args) {

@@ -24,6 +24,15 @@ public class Cell {
         return Objects.hash(x, y, val);
     }
 
+    @Override
+    public String toString() {
+        return "Cell{" +
+                "x=" + x +
+                ", y=" + y +
+                ", val=" + val +
+                '}';
+    }
+
     public Cell(int y, int x, Value val) {
         this.x = x;
         this.y = y;
@@ -54,4 +63,5 @@ public class Cell {
         return val == Value.ROBOT;
     }
 
+    public boolean isEarth() { return val == Value.EARTH;}
 }
