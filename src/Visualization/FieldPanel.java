@@ -44,12 +44,14 @@ public class FieldPanel extends JPanel {
     }
 
     void showSolution() {
-        step++;
-        points += field.getPointsForStep(route.getLast());
-        lambdaCollected += route.getLast().isLambda() ? 1 : 0;
-        if (route.getLast().isLift()) points += lambdaCollected * 25;
-        field.robotStep(route.pollLast(), null, false);
-        field.simulation(null, false);
+        if (route != null) {
+            step++;
+            points += route.getLast().isLambda() ? 49 : -1;
+            lambdaCollected += route.getLast().isLambda() ? 1 : 0;
+            if (route.getLast().isLift()) points += lambdaCollected * 25;
+            field.robotStep(route.pollLast(), null, false);
+            field.simulation(null, false);
+        }
         repaint();
     }
 

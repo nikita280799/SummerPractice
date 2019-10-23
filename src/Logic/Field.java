@@ -35,15 +35,15 @@ public class Field {
         this.robot = new Cell(otherField.robot.y, otherField.robot.x, Value.ROBOT);
         this.lift = new Cell(otherField.lift.y, otherField.lift.x, Value.LIFT);
         this.countOfLambda = otherField.countOfLambda;
-        this.isLiftOpen = false;
-        this.isRobotDead = false;
+        this.isLiftOpen = otherField.isLiftOpen;
+        this.isRobotDead = otherField.isRobotDead;
     }
 
     public Cell getCell(int x, int y) {
         return cells[y][x];
     }
 
-    public Value getValue(int x, int y) {
+    Value getValue(int x, int y) {
         return cells[y][x].val;
     }
 
@@ -55,40 +55,37 @@ public class Field {
         return cells.length;
     }
 
-    public void setCell(int x, int y, Value val) {
+    private void setCell(int x, int y, Value val) {
         cells[y][x] = new Cell(y, x, val);
     }
 
-    public void setCell(Cell cell, Value newValue) {
+    private void setCell(Cell cell, Value newValue) {
         cells[cell.y][cell.x] = new Cell(cell.y, cell.x, newValue);
     }
 
-    public void setCell(Cell cell) {
+    private void setCell(Cell cell) {
         cells[cell.y][cell.x] = cell;
     }
-
 
     public Set<Cell> getPossibleSteps(Cell curCell) {
         Set<Cell> steps = new HashSet<>();
         if (curCell.y < getYsize() - 1 && isItPossibleStep(curCell, upCell(curCell))) steps.add(upCell(curCell));
         if (curCell.y > 0 && isItPossibleStep(curCell, downCell(curCell))) steps.add(downCell(curCell));
         if (curCell.x < getXsize() - 1 && isItPossibleStep(curCell, rightCell(curCell))) steps.add(rightCell(curCell));
-        if (curCell.x > 0 &&isItPossibleStep(curCell, leftCell(curCell))) steps.add(leftCell(curCell));
+        if (curCell.x > 0 && isItPossibleStep(curCell, leftCell(curCell))) steps.add(leftCell(curCell));
         steps.add(curCell);
         return steps;
     }
 
-    public boolean isItPossibleStep(Cell from, Cell to) {
-        return (abs(from.x - to.x + from.y - to.y)
-                == 1 && (!to.isLift() || isLiftOpen) && !to.isWall() && (!to.isRock() || (from.y == to.y &&
+    private boolean isItPossibleStep(Cell from, Cell to) {
+        return (abs(from.x - to.x + from.y - to.y) == 1
+                && (!to.isLift() || isLiftOpen) && !to.isWall() && (!to.isRock() || (from.y == to.y &&
                 ((from.x + 1 == to.x && rightCell(to).isEmpty()) || (from.x - 1 == to.x && leftCell(to).isEmpty())))));
     }
 
     public void robotStep(Cell to, Map<Cell, Cell> transitions, boolean isTransitionNeeded) {
         to = getCell(to.x, to.y);
-        if (to.isLambda()) {
-            countOfLambda--;
-        }
+        if (to.isLambda()) countOfLambda--;
         if (isTransitionNeeded) {
             addTransition(transitions, robot, new Cell(robot.y, robot.x, Value.EMPTY));
             addTransition(transitions, to, new Cell(to.y, to.x, Value.ROBOT));
@@ -109,73 +106,53 @@ public class Field {
         robot = new Cell(to.y, to.x, Value.ROBOT);
     }
 
-    public boolean isRockMove(Cell rock) {
-        return (downCell(rock).isEmpty() || (rightCell(rock).isEmpty() && getCell(rock.x + 1, rock.y - 1).isEmpty())
-                || (leftCell(rock).isEmpty() && getCell(rock.x + 1, rock.y - 1).isEmpty()) || (downCell(rock).isLambda() &&
-                rightCell(rock).isEmpty() && getCell(rock.x + 1, rock.y - 1).isEmpty()));
-    }
-
     public boolean isAnyRockMove() {
         for (int i = 0; i < getYsize(); i++) {
             for (int j = 0; j < getXsize(); j++) {
                 if (getCell(j, i).isRock()) {
                     Cell rock = getCell(j, i);
-                    if (downCell(rock).isEmpty() || (rightCell(rock).isEmpty() && getCell(rock.x + 1, rock.y - 1).isEmpty())
-                            || (leftCell(rock).isEmpty() && getCell(rock.x + 1, rock.y - 1).isEmpty()) || (downCell(rock).isLambda() &&
-                            rightCell(rock).isEmpty() && getCell(rock.x + 1, rock.y - 1).isEmpty())) return true;
+                    if (downCell(rock).isEmpty() || (rightCell(rock).isEmpty()
+                            && getCell(rock.x + 1, rock.y - 1).isEmpty()) || (leftCell(rock).isEmpty()
+                            && getCell(rock.x + 1, rock.y - 1).isEmpty()) || (downCell(rock).isLambda()
+                            && rightCell(rock).isEmpty() && getCell(rock.x + 1, rock.y - 1).isEmpty())) return true;
                 }
             }
         }
         return false;
     }
 
-    public void simulation(Map<Cell, Cell> transitions, boolean isTransitionNeeded) {
+    private void rockMoveAndTrans(Cell from, Cell to, Map<Cell, Cell> transitions, boolean isTransitionNeeded) {
+        if (isTransitionNeeded) {
+            addTransition(transitions, new Cell(from.y, from.x, Value.ROCK), new Cell(from.y, from.x, Value.EMPTY));
+            addTransition(transitions, new Cell(to.y, to.x, Value.EMPTY), new Cell(to.y, to.x, Value.ROCK));
+        }
+        setCell(from.x, from.y, Value.EMPTY);
+        setCell(to.x, to.y, Value.ROCK);
+        if (getCell(to.x, to.y - 1).isRobot()) isRobotDead = true;
+    }
+
+    public void simulation(Map<Cell, Cell> trans, boolean isTransNeed) {
         for (int i = 0; i < getYsize(); i++) {
             for (int j = 0; j < getXsize(); j++) {
                 if (getCell(j, i).isRock()) {
                     Cell rock = getCell(j, i);
                     if (getCell(rock.x, rock.y - 1).isEmpty()) {
-                        if (isTransitionNeeded) {
-                            addTransition(transitions, new Cell(rock.y, rock.x, Value.ROCK), new Cell(rock.y, rock.x, Value.EMPTY));
-                            addTransition(transitions, new Cell(rock.y - 1, rock.x, Value.EMPTY), new Cell(rock.y - 1, rock.x, Value.ROCK));
-                        }
-                        setCell(rock.x, rock.y, Value.EMPTY);
-                        setCell(rock.x, rock.y - 1, Value.ROCK);
-                        if (getCell(rock.x, rock.y - 2).isRobot()) isRobotDead = true;
+                        rockMoveAndTrans(rock, new Cell(rock.y - 1, rock.x, Value.EMPTY), trans, isTransNeed);
                         break;
                     }
                     if (getCell(rock.x, rock.y - 1).isRock()) {
                         if (getCell(rock.x + 1, rock.y).isEmpty() && getCell(rock.x + 1, rock.y - 1).isEmpty()) {
-                            if (isTransitionNeeded) {
-                                addTransition(transitions, new Cell(rock.y, rock.x, Value.ROCK), new Cell(rock.y, rock.x, Value.EMPTY));
-                                addTransition(transitions, new Cell(rock.y - 1, rock.x + 1, Value.EMPTY), new Cell(rock.y - 1, rock.x + 1, Value.ROCK));
-                            }
-                            setCell(rock.x, rock.y, Value.EMPTY);
-                            setCell(rock.x + 1, rock.y - 1, Value.ROCK);
-                            if (getCell(rock.x + 1, rock.y - 2).isRobot()) isRobotDead = true;
+                            rockMoveAndTrans(rock, new Cell(rock.y - 1, rock.x + 1, Value.EMPTY), trans, isTransNeed);
                             break;
                         }
                         if (getCell(rock.x - 1, rock.y).isEmpty() && getCell(rock.x - 1, rock.y - 1).isEmpty()) {
-                            if (isTransitionNeeded) {
-                                addTransition(transitions, new Cell(rock.y, rock.x, Value.ROCK), new Cell(rock.y, rock.x, Value.EMPTY));
-                                addTransition(transitions, new Cell(rock.y - 1, rock.x - 1, Value.EMPTY), new Cell(rock.y - 1, rock.x - 1, Value.ROCK));
-                            }
-                            setCell(rock.x, rock.y, Value.EMPTY);
-                            setCell(rock.x - 1, rock.y - 1, Value.ROCK);
-                            if (getCell(rock.x - 1, rock.y - 2).isRobot()) isRobotDead = true;
+                            rockMoveAndTrans(rock, new Cell(rock.y - 1, rock.x - 1, Value.EMPTY), trans, isTransNeed);
                             break;
                         }
                     }
                     if (getCell(rock.x, rock.y - 1).isLambda() &&
                             getCell(rock.x + 1, rock.y).isEmpty() && getCell(rock.x + 1, rock.y - 1).isEmpty()) {
-                        setCell(rock.x, rock.y, Value.EMPTY);
-                        if (isTransitionNeeded) {
-                            addTransition(transitions, new Cell(rock.y, rock.x, Value.ROCK), new Cell(rock.y, rock.x, Value.EMPTY));
-                            addTransition(transitions, new Cell(rock.y - 1, rock.x + 1, Value.EMPTY), new Cell(rock.y - 1, rock.x + 1, Value.ROCK));
-                        }
-                        setCell(rock.x, rock.y, Value.EMPTY);
-                        setCell(rock.x + 1, rock.y - 1, Value.ROCK);
-                        if (getCell(rock.x + 1, rock.y - 2).isRobot()) isRobotDead = true;
+                        rockMoveAndTrans(rock, new Cell(rock.y - 1, rock.x + 1, Value.EMPTY), trans, isTransNeed);
                         break;
                     }
                 }
@@ -185,60 +162,47 @@ public class Field {
     }
 
     private void addTransition(Map<Cell, Cell> transitons, Cell from, Cell to) {
-        Cell trans = null;
-        if (from.x != to.x || to.y != from.y) System.out.println("Something wrong");
         for (Map.Entry entry : transitons.entrySet()) {
-            trans = (Cell) entry.getKey();
-            if (trans.x == from.x && trans.y == from.y && trans.val != from.val) {
-                if (trans.val != to.val) transitons.put(new Cell(trans.y, trans.x, trans.val), new Cell(to.y, to.x, to.val));
-                else transitons.remove(trans);
+            Cell cell = (Cell) entry.getKey();
+            if (cell.x == from.x && cell.y == from.y && cell.val != from.val) {
+                if (cell.val != to.val)
+                    transitons.put(new Cell(cell.y, cell.x, cell.val), new Cell(to.y, to.x, to.val));
+                else transitons.remove(cell);
                 return;
             }
         }
         transitons.put(new Cell(from.y, from.x, from.val), new Cell(to.y, to.x, to.val));
     }
 
-    public void rollBack(Map<Cell, Cell> trasitions, boolean isLambdaCounting) {
+    public void rollBack(Map<Cell, Cell> trasitions) {
         for (Map.Entry<Cell, Cell> entry : trasitions.entrySet()) {
-
-            if (entry.getValue().x != entry.getKey().x || entry.getValue().y != entry.getKey().y) System.out.println("Back " + entry.getValue() + " " + entry.getKey());
-
             if (!entry.getKey().isRobot()) {
-                if (entry.getKey().isLambda() && isLambdaCounting) {
+                if (entry.getKey().isLambda()) {
                     countOfLambda++;
                     if (isLiftOpen) isLiftOpen = false;
                 }
-                setCell(entry.getKey());
             } else {
-                setCell(entry.getKey());
                 robot = entry.getKey();
             }
+            setCell(entry.getKey());
         }
         if (isRobotDead) isRobotDead = false;
     }
 
     public void rollForward(Map<Cell, Cell> trasitions) {
         for (Map.Entry<Cell, Cell> entry : trasitions.entrySet()) {
-            if (entry.getValue().x != entry.getKey().x || entry.getValue().y != entry.getKey().y) System.out.println("Forward" + entry.getValue() + " " + entry.getKey());
-
-            if (!entry.getValue().isRobot()) {
-                setCell(entry.getValue());
-            } else {
+            if (entry.getValue().isRobot()) {
                 if (entry.getKey().isLambda()) {
                     countOfLambda--;
                     if (countOfLambda == 0) isLiftOpen = true;
                 }
-                setCell(entry.getValue());
                 robot = entry.getValue();
             }
+            setCell(entry.getValue());
         }
     }
 
-    public int getPointsForStep(Cell step){
-        return step.isLambda() ? 49 : -1;
-    }
-
-    public int getPointsForRoute(Deque<Cell> route) {
+    public static int getPointsForRoute(Deque<Cell> route) {
         int lambdaCollected = 0;
         int points = -route.size();
         while (!route.isEmpty()) {
@@ -278,7 +242,6 @@ public class Field {
             for (int i = 0; i < getYsize(); i++) {
                 for (int j = 0; j < getXsize(); j++) {
                     if (!getCell(j, i).equals(field.getCell(j, i))) {
-                        System.out.println("unequal: " + getCell(j, i) + "  " + field.getCell(j, i));
                         return false;
                     }
                 }

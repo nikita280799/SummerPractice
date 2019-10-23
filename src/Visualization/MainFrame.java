@@ -51,12 +51,12 @@ public class MainFrame extends JFrame {
         loadMap.addActionListener(e -> {
             fileChooser.setDialogTitle("Выбор карты");
             int result = fileChooser.showOpenDialog(MainFrame.this);
-            if (result == JFileChooser.APPROVE_OPTION ) {
+            if (result == JFileChooser.APPROVE_OPTION) {
                 this.fieldPanel.setMap(Parser.parse(fileChooser.getSelectedFile().getAbsolutePath()));
             }
         });
-        findSolution.addActionListener(e -> {fieldPanel.findSolution();});
-        showSolution.addActionListener(e -> {fieldPanel.showSolution();});
+        findSolution.addActionListener(e -> fieldPanel.findSolution());
+        showSolution.addActionListener(e -> fieldPanel.showSolution());
     }
 
     public static void main(String[] args) {

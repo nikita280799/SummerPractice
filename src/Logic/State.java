@@ -1,30 +1,28 @@
 package Logic;
 
-import java.util.List;
-
 import java.util.*;
 
 public class State {
 
     State parent = null;
 
-    Set<State> childs = new HashSet<>();
+    private Set<State> childs = new HashSet<>();
 
     int heuristic;
 
     int level = 0;
 
-    int numberOfGoalCell;
+    int goalNumber;
 
-    Cell robotCell;
+    public Cell robotCell;
 
     Map<Cell, Cell> transitions;
 
-    public State(Map<Cell, Cell> transitions, int heuristic, int numberOfGoalCell, Cell robotCell) {
+    public State(Map<Cell, Cell> transitions, int heuristic, int goalNumber, Cell robotCell) {
         this.transitions = transitions;
         this.heuristic = heuristic;
         this.robotCell = robotCell;
-        this.numberOfGoalCell = numberOfGoalCell;
+        this.goalNumber = goalNumber;
     }
 
     public void addChild(State child) {
